@@ -1,9 +1,8 @@
 import pathlib
+import typing as t
 
-def build_prefix(depth: int) -> str:
-    return ('  ' + '┃') * depth
 
-def traverse(path: pathlib.Path, depth=0) -> None:
+def traverse_paths(path: pathlib.Path) -> t.List[pathlib.Path]:
     dirs = []
     files = []
 
@@ -13,22 +12,28 @@ def traverse(path: pathlib.Path, depth=0) -> None:
         else:
             files.append(file)
 
-    sorted_paths = dirs + files
+    return dirs + files
+
+
+def traverse(path: pathlib.Path, depth=0) -> None:
+    sorted_paths = traverse_paths(path)
 
     for idx, file in enumerate(sorted_paths, 1):
         is_last = idx == len(sorted_paths)
-        prefix = build_prefix(depth)
-        filename_prefix = '┗━' if is_last else '┣━'
+        prefix = '┃  ' * depth
+        another_prefix = '┗━' if is_last else '┣━'
         if file.is_dir():
-            print(f'{prefix}  {filename_prefix} {file.name}/')
+            print(f'{prefix}{another_prefix} {file.name}/')
             traverse(file, depth=depth+1)
         else:
-            print(f'{prefix}  {filename_prefix} {file.name}')
+            print(f'{prefix}{another_prefix} {file.name}')
 
-def main():
+
+def main() -> None:
     current = pathlib.Path('.')
-    print(f'  {current.resolve().name}/')
+    print('.')
     traverse(current)
+
 
 if __name__ == '__main__':
     main()
