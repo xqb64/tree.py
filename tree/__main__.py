@@ -25,6 +25,9 @@ def traverse(path: pathlib.Path, exclude_hidden_files: bool, depth=0) -> None:
         is_last = idx == len(sorted_paths)
         prefix = '┃  ' * depth
         another_prefix = '┗━' if is_last else '┣━'
+        if file.is_symlink():
+            print(f'{prefix}{another_prefix} {file.name} -> {file.resolve()}')
+            continue
         if file.is_dir():
             print(f'{prefix}{another_prefix} {file.name}/')
             traverse(file, exclude_hidden_files=exclude_hidden_files, depth=depth+1)
