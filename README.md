@@ -18,11 +18,13 @@ For example:
 ```
 ❯ python3 -m tree -e .
 .
+┣━ tree/
 ┃  ┣━ __pycache__/
 ┃  ┃  ┣━ __init__.cpython-38.pyc
 ┃  ┃  ┗━ __main__.cpython-38.pyc
 ┃  ┣━ __init__.py
 ┃  ┗━ __main__.py
+┣━ spam -> /home/alex/Repositories/xqb64/tree
 ┣━ tests/
 ┃  ┣━ __init__.py
 ┃  ┗━ test_tree.py
