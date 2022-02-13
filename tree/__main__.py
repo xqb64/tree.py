@@ -2,45 +2,42 @@ import argparse
 import pathlib
 import typing as t
 
-
-def traverse_paths(path: pathlib.Path) -> t.List[pathlib.Path]:
-    dirs = []
+def sieve(path: pathlib.Path) -> t.List[pathlib.Path]:
+    directories = []
     files = []
-
     for file in path.iterdir():
         if file.is_dir():
-            dirs.append(file)
+            directories.append(file)
         else:
             files.append(file)
+    return directories + files
 
-    return dirs + files
 
+def traverse(path: pathlib.Path, exclude_hidden_files: bool, depth: int = 0) -> None:
+    paths = sieve(path)
+    for idx, p in enumerate(paths, 1):
+        grandparents = sieve(p.parent.parent) + [path]
 
-def traverse(path: pathlib.Path, exclude_hidden_files: bool, depth=0) -> None:
-    sorted_paths = traverse_paths(path)
+        is_last = idx == len(paths)
+        is_parent_last = grandparents.index(p.parent) + 1 == len(grandparents) - 1
 
-    for idx, file in enumerate(sorted_paths, 1):
-        if exclude_hidden_files and file.name.startswith('.'):
+        prefix = "┗━" if is_last else "┣━" 
+        parent_prefix =  ("┃ " * (depth-1) + "  ") if is_parent_last else ("┃ " * depth)
+
+        if p.is_symlink():
+            print(f"{parent_prefix}{prefix}", p.name, "->", p.resolve())
             continue
-        is_last = idx == len(sorted_paths)
-        prefix = '┃  ' * depth
-        another_prefix = '┗━' if is_last else '┣━'
-        if file.is_symlink():
-            print(f'{prefix}{another_prefix} {file.name} -> {file.resolve()}')
-            continue
-        if file.is_dir():
-            print(f'{prefix}{another_prefix} {file.name}/')
-            traverse(file, exclude_hidden_files=exclude_hidden_files, depth=depth+1)
+        if p.is_dir():
+            print(f"{parent_prefix}{prefix}", p.name)
+            traverse(p, exclude_hidden_files=exclude_hidden_files, depth=depth+1)
         else:
-            print(f'{prefix}{another_prefix} {file.name}')
+            print(f"{parent_prefix}{prefix}", p.name)
 
 
 def main(args: argparse.Namespace) -> None:
-    exclude_hidden_files = args.exclude_hidden_files 
-
     current = pathlib.Path('.')
     print('.')
-    traverse(current, exclude_hidden_files=exclude_hidden_files)
+    traverse(current, exclude_hidden_files=args.exclude_hidden_files)
 
 
 if __name__ == '__main__':
